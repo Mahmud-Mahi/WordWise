@@ -33,7 +33,7 @@ git clone https://github.com/Mahmud-Mahi/WordWise.git
 cd WordWise
 mv dictionary.json ~/.local/share/WordWise/
 mv wordwise.png ~/.local/share/WordWise/
-mv wordwise.desktop ~/.local/share/applications/
+mv WordWise.desktop ~/.local/share/applications/
 ```
 3. All done!
 
