@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=WordWise
+Exec=wordwise
+Icon=accessories-dictionary
+Terminal=false
+Categories=Utility;
+Comment=
+Path=
+StartupNotify=false
