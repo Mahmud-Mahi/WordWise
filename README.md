@@ -28,12 +28,12 @@ Additionally, the project includes a **standalone dictionary app** built using P
 chmod +x wordwise
 sudo mv wordwise /usr/local/bin/
 cd ~
-mkdir /.local/share/WordWise/
+mkdir ~/.local/share/WordWise/
 git clone https://github.com/Mahmud-Mahi/WordWise.git
 cd WordWise
-mv dictionary.json /.local/share/WordWise/
-mv wordwise.png /.local/share/WordWise/
-mv wordwise.desktop /.local/share/applications/
+mv dictionary.json ~/.local/share/WordWise/
+mv wordwise.png ~/.local/share/WordWise/
+mv wordwise.desktop ~/.local/share/applications/
 ```
 3. All done!
 
