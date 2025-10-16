@@ -5,10 +5,26 @@ import tkinter as tk
 from tkinter import messagebox, simpledialog
 from tkinter import *
 import threading
-import os
+import os, sys
 import platform
 from gtts import gTTS
 import subprocess
+import shutil
+
+if getattr(sys, 'frozen', False):
+    dependencies_path = sys._MEIPASS
+    os.chdir(dependencies_path)
+    print("Running in a PyInstaller bundle")
+    print("Dependencies path:", dependencies_path)
+else:
+    print("Running in a normal Python environment")
+    dependencies_path = os.path.dirname(os.path.abspath(__file__))
+    print("Dependencies path:", dependencies_path)
+    os.chdir(dependencies_path)
+
+bundled_ffplay_path = os.path.join(dependencies_path, "ffplay.exe")
+bundled_json_path = os.path.join(dependencies_path, "dictionary.json")
+bundled_icon_path = os.path.join(dependencies_path, "wordwise.png")
 
 # ---------------------------
 # Data Handling Functions
@@ -34,6 +50,21 @@ def get_app_dir():
     os.makedirs(base_dir, exist_ok=True)
     return base_dir
 
+# Define the application directory and JSON file path.
+app_dir = get_app_dir()
+json_file = os.path.join(app_dir, "dictionary.json")
+# If dictionary.json doesn't exist in AppData, copy it from bundle
+if not os.path.exists(json_file):
+    try:
+        with open(bundled_json_path, "r", encoding="utf-8") as src, \
+             open(json_file, "w", encoding="utf-8") as dst:
+            dst.write(src.read())
+        print(f"dictionary.json copied to {json_file}")
+    except Exception as e:
+        print(f"Failed to copy dictionary.json: {e}")
+else:
+    print(f"dictionary.json already exists at {json_file}")
+
 def load_json(file_name):
     """Load JSON data from a file."""
     try:
@@ -46,11 +77,8 @@ def load_json(file_name):
     except json.JSONDecodeError:
         print("Invalid JSON")
         return {}
-
-
-# Define the JSON file path and load offline dictionary data.
-app_dir = get_app_dir()
-json_file = os.path.join(app_dir, "dictionary.json")
+    
+# Load offline dictionary data.
 wordnet_data = load_json(json_file)
 
 def save_json():
@@ -222,9 +250,42 @@ def play_audio(file_path):
     system = platform.system()
     try:
         if system == "Windows":
-            os.startfile(file_path)
+            ffplay_path = os.path.join(app_dir, "ffplay.exe")
+            if not os.path.exists(ffplay_path):
+                if os.path.exists(bundled_ffplay_path):
+                    shutil.copy(bundled_ffplay_path, ffplay_path)
+                else:
+                    messagebox.showerror("Error", "ffplay.exe not found in the bundle.")
+                    return
+            # Hide the console window when ffplay is launched
+            si = subprocess.STARTUPINFO()
+            si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+            try:
+                # Try with CREATE_NO_WINDOW first, fallback to startupinfo
+                try:
+                    subprocess.run(
+                        [ffplay_path, "-nodisp", "-autoexit", file_path],
+                        creationflags=subprocess.CREATE_NO_WINDOW,
+                        stdout=subprocess.DEVNULL,
+                        stderr=subprocess.DEVNULL,
+                        timeout=30, check=False
+                    )
+                except AttributeError:
+                    # CREATE_NO_WINDOW not available, use startupinfo
+                    subprocess.run(
+                        [ffplay_path, "-nodisp", "-autoexit", file_path],
+                        startupinfo=si,
+                        stdout=subprocess.DEVNULL,
+                        stderr=subprocess.DEVNULL,
+                        timeout=30, check=False
+                    )
+            except Exception as e:
+                messagebox.showerror("Error", f"An error occurred while playing audio: {e}")
+                return
+
         elif system == "Darwin":  # macOS
             subprocess.run(["open", file_path], check=False)
+
         elif system == "Linux":
             if os.system(f"command -v mplayer >/dev/null") == 0:
                 subprocess.run(["mplayer", file_path], check=False)
@@ -235,7 +296,7 @@ def play_audio(file_path):
             elif os.ssytem(f"command -v xdg-open >/dev/null") == 0:
                 subprocess.run(["xdg-open", file_path], check=False)
             else:
-                messagebox.showerror("Error", "No suitable audio player found. Please install ffplay, aplay, mplayer, or xdg-open.")
+                messagebox.showerror("Error", "No suitable audio player found. Please install any of these: aplay, mplayer,ffplay")
         else:
             messagebox.showerror("Error", "Unsupported OS for audio playback.")
     except Exception as e:
@@ -342,7 +403,7 @@ def pronounce_word(word):
     """Pronounce the given word using gTTS."""
     try:
         tts = gTTS(text=word, lang='en')
-        audio_file = os.path.join(app_dir, 'temp_audio.mp3')
+        audio_file = os.path.join(app_dir, 'temp_audio.wav')
         tts.save(audio_file)
         print(f"Playing audio...",{audio_file})
         play_audio(audio_file)
@@ -363,6 +424,8 @@ window.resizable(False, True)
 # Set the application icon. (Adjust the path as needed.)
 try:
     icon_path = os.path.join(app_dir, "wordwise.png")
+    if not os.path.exists(icon_path):
+        shutil.copy(bundled_icon_path, icon_path)
     icon = tk.PhotoImage(file=icon_path)
     window.iconphoto(True, icon)
 except Exception as e:
@@ -374,7 +437,7 @@ frame.pack(side="top")
 
 # Entry widget for word search.
 entry_word = tk.Entry(frame,
-                   font=("Cantarell", 13),
+                   font=("Comic Sans MS", 13),
                    bg='#262933',
                    fg='white',
                    insertbackground='white',  # This sets the text cursor (caret) color
@@ -387,20 +450,20 @@ entry_word.bind("<Return>", update_label)
 
 # Main control buttons.
 search_button = tk.Button(frame, text="Search",
-                          font=("Cantarell", 11),
+                          font=("Comic Sans MS", 11),
                           bg='#262933',
                           fg='white',
                           state="disabled",
                           command=update_label)
 
 delete_button = tk.Button(frame, text="Delete",
-                          font=("Cantarell", 11),
+                          font=("Comic Sans MS", 11),
                           bg='#262933',
                           fg='white',
                           command=delete)
 
 pronounce_button = tk.Button(frame, text="Pronounce",
-                             font=("Cantarell", 11),
+                             font=("Comic Sans MS", 11),
                              bg='#262933',
                              fg='white',
                              command=lambda: pronounce_word(entry_word.get().strip().lower()))
@@ -410,7 +473,7 @@ frame_btn = Frame(window, bg='#262933')
 
 # Suggestion buttons (initially not packed).
 suggestion_yes = tk.Button(frame_btn, text="Yes",
-                           font=("Cantarell", 11),
+                           font=("Comic Sans MS", 11),
                            bg='#262933',
                            fg='green',
                            activeforeground='green',
@@ -420,13 +483,13 @@ suggestion_yes = tk.Button(frame_btn, text="Yes",
 suggestion_yes.bind("<Return>", lambda event: suggestion_yes.invoke())
 
 suggestion_no = tk.Button(frame_btn, text="No",
-                          font=("Cantarell", 11),
+                          font=("Comic Sans MS", 11),
                           bg='#262933',
                           fg='orange',
                           activeforeground='orange')
 
 overwrite_button = tk.Button(frame, text="Edit",
-                          font=("Cantarell", 11),
+                          font=("Comic Sans MS", 11),
                           bg='#262933',
                           fg='red',
                           activeforeground='red',
@@ -435,7 +498,7 @@ overwrite_button = tk.Button(frame, text="Edit",
 
 # Output label for displaying word details.
 label = tk.Label(window, text="",
-                 font=("Cantarell", 12),
+                 font=("Comic Sans MS", 12),
                  bg='#262933',
                  fg='white',
                  justify=tk.LEFT,
