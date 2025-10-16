@@ -16,31 +16,24 @@ Additionally, the project includes a **standalone dictionary app** built using P
 
 ## **Installation Guide**  
 #### **For Windows**
-1. See the `releases` section to get the latest `.exe` file.
-2. Double-click to run the file.
-3. Download or clone `dictionary.json` file.
-4. Paste the file in `APPDATA/WordWise/`
+1. See the `releases` section to get the latest `zip` file.
+2. Extract it in your convenient location & double-click to run the `.exe` file.
 
 #### **For Linux**
-1. See the 'releases` section & download the latest compiled file.
-2. Open terminal & paste the following command
+1. See the `releases` section & download the latest `.tar.gz` file.
+2. Extract it & double-click to run it.
+3. Open terminal & paste the following command (You can skip it)
 ```sh
 chmod +x wordwise
-sudo mv wordwise /usr/local/bin/
-cd ~
-mkdir ~/.local/share/WordWise/
-git clone https://github.com/Mahmud-Mahi/WordWise.git
-cd WordWise
-mv dictionary.json ~/.local/share/WordWise/
-mv wordwise.png ~/.local/share/WordWise/
+sudo mv wordwise /usr/local/bin
 mv WordWise.desktop ~/.local/share/applications/
 ```
 3. All done!
 
 #### **For macOS **
-1. Clone the repository.
-2. Build your own app using `main.py` script.
-3. Ask any AI chatbot for help.
+1. See the `releases` section & download the latest `.tar.gz` file.
+2. Extract it & double-click to run it.
+3. Ask any AI chatbot for additional customization help.
 
 ---
 
