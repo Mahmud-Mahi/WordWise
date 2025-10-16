@@ -1,9 +1,9 @@
 [Desktop Entry]
-Version=1.0
+Version=1.1.0
 Type=Application
 Name=WordWise
 Exec=wordwise
-Icon=accessories-dictionary
+Icon=.local/share/WordWise/wordwise.png
 Terminal=false
 Categories=Utility;
 Comment=
