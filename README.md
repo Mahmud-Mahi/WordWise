@@ -1,6 +1,9 @@
 # WordWise
 A powerful, user-friendly dictionary with an interactive graphical interface. It provides definitions, examples, synonyms, and antonyms for words using both **offline data** and an **online API**.
 
+<img width="500" height="360" alt="wordwise-windows" src="https://github.com/user-attachments/assets/db820fbe-eb09-49b6-8f20-9a89dce3c6fa" />
+<img width="500" height="375" alt="wordwise-linux" src="https://github.com/user-attachments/assets/f372b0ff-a053-4b76-848b-1a6e9488fa82" />
+
 Additionally, the project includes a **standalone dictionary app** built using PyInstaller, allowing users to use the dictionary without running Python scripts.
 
 ## **Features**  
